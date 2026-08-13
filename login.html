@@ -19,17 +19,50 @@
     </header>
     <main>
         <h2>Welcome Back</h2>
-        <form>
+        <form id="loginForm">
             <div style="margin-bottom: 15px;">
                 <label>Email:</label><br>
-                <input type="email" placeholder="Enter your email" style="width: 100%; padding: 8px; margin-top: 5px;">
+                <input type="email" id="loginEmail" placeholder="Enter your email" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <div style="margin-bottom: 15px;">
                 <label>Password:</label><br>
-                <input type="password" placeholder="Enter your password" style="width: 100%; padding: 8px; margin-top: 5px;">
+                <input type="password" id="loginPassword" placeholder="Enter your password" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <button type="submit" style="background-color: #2c3e50; color: white; padding: 10px 20px; border: none; cursor: pointer;">Login</button>
         </form>
     </main>
+
+    <script>
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Login successful! Redirecting to dashboard...');
+                    window.location.href = 'dashboard.html'; // Takes them to the dashboard
+                } else {
+                    alert('Login failed.');
+                }
+            } catch (error) {
+                console.error('Error connecting to server:', error);
+                alert('Could not connect to the backend server.');
+            }
+        });
+    </script>
 </body>
 </html>

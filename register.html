@@ -19,21 +19,61 @@
     </header>
     <main>
         <h2>Create an Account</h2>
-        <form>
+        <!-- Added id="registerForm" -->
+        <form id="registerForm">
             <div style="margin-bottom: 15px;">
                 <label>Full Name:</label><br>
-                <input type="text" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-top: 5px;">
+                <!-- Added id="name" -->
+                <input type="text" id="name" placeholder="Enter your name" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <div style="margin-bottom: 15px;">
                 <label>Email:</label><br>
-                <input type="email" placeholder="Enter your email" style="width: 100%; padding: 8px; margin-top: 5px;">
+                <!-- Added id="email" -->
+                <input type="email" id="email" placeholder="Enter your email" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <div style="margin-bottom: 15px;">
                 <label>Password:</label><br>
-                <input type="password" placeholder="Create a password" style="width: 100%; padding: 8px; margin-top: 5px;">
+                <!-- Added id="password" -->
+                <input type="password" id="password" placeholder="Create a password" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <button type="submit" style="background-color: #2c3e50; color: white; padding: 10px 20px; border: none; cursor: pointer;">Register</button>
         </form>
     </main>
+
+    <!-- JavaScript to send data to the backend -->
+    <script>
+        const registerForm = document.getElementById('registerForm');
+
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Prevents the page from refreshing
+
+            // Get values from inputs
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                // Send data to your backend server route
+                const response = await fetch('http://localhost:3000/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, password })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Registration successful! Server says: ' + data.message);
+                } else {
+                    alert('Registration failed.');
+                }
+            } catch (error) {
+                console.error('Error connecting to server:', error);
+                alert('Could not connect to the backend server.');
+            }
+        });
+    </script>
 </body>
 </html>
