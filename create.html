@@ -40,23 +40,25 @@
 
             const title = document.getElementById('postTitle').value;
             const content = document.getElementById('postContent').value;
+            const author = "Admin"; // Default or dynamic author fallback
 
             try {
-                const response = await fetch('http://localhost:3000/api/posts', {
+                // Fixed endpoint to match backend /api/blogs route
+                const response = await fetch('http://localhost:3000/api/blogs', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ title, content })
+                    body: JSON.stringify({ title, content, author })
                 });
 
                 const data = await response.json();
 
-                if (data.success) {
+                if (response.ok) {
                     alert('Blog published successfully!');
                     window.location.href = 'dashboard.html'; // Redirect to dashboard to see it
                 } else {
-                    alert('Failed to publish blog.');
+                    alert('Failed to publish blog: ' + (data.error || 'Unknown error'));
                 }
             } catch (error) {
                 console.error('Error connecting to server:', error);

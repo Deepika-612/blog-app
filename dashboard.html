@@ -28,24 +28,24 @@
     <script>
         async function fetchPosts() {
             try {
-                const response = await fetch('http://localhost:3000/api/posts');
+                const response = await fetch('http://localhost:3000/api/blogs');
                 const posts = await response.json();
 
                 const container = document.getElementById('postsContainer');
                 
-                if (posts.length === 0) {
+                if (!posts || posts.length === 0) {
                     container.innerHTML = '<p>No blog posts found yet. Go create one!</p>';
                     return;
                 }
 
-                // Clear container and render posts dynamically
                 container.innerHTML = '';
                 posts.forEach(post => {
                     const postCard = document.createElement('div');
                     postCard.style.cssText = 'border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 5px; background: #f9f9f9;';
                     postCard.innerHTML = `
-                        <h3>${post.title}</h3>
-                        <p>${post.content}</p>
+                        <h3><a href="blog.html?id=${post._id}" style="color: #2c3e50; text-decoration: none;">${post.title}</a></h3>
+                        <p>${post.content.substring(0, 100)}...</p>
+                        <small style="color: #666;">By: ${post.author || 'Anonymous'} | <a href="blog.html?id=${post._id}">Read More</a></small>
                     `;
                     container.appendChild(postCard);
                 });
@@ -55,10 +55,8 @@
             }
         }
 
-        // Fetch posts when the dashboard loads
         fetchPosts();
 
-        // Logout function
         function logout() {
             alert('Logged out successfully!');
             window.location.href = 'index.html'; 
