@@ -9,13 +9,13 @@ app.use(express.static(__dirname));
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect('mongodb+srv://bloguser:blogpassword123@cluster0.qwqleoy.mongodb.net/?appName=Cluster0')
-.then(() => console.log('MongoDB connected successfully!'))
-.catch(err => console.error('MongoDB connection error:', err));
+mongoose.connect('mongodb+srv://bloguser:blogpassword123@cluster0.qwqleoy.mongodb.net/blogapp?retryWrites=true&w=majority')
+    .then(() => console.log('MongoDB connected successfully!'))
+    .catch(err => console.error('MongoDB connection error:', err));
 
 // User Schema & Model
 const userSchema = new mongoose.Schema({
-    username: { type: String, required: true, unique: true },
+    username: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true }
 });
@@ -25,58 +25,63 @@ const User = mongoose.model('User', userSchema);
 const blogSchema = new mongoose.Schema({
     title: { type: String, required: true },
     content: { type: String, required: true },
+    category: { type: String, default: 'General' },
     author: { type: String, default: 'Anonymous' },
     createdAt: { type: Date, default: Date.now }
 });
 const Blog = mongoose.model('Blog', blogSchema);
 
-// Register Route
-app.post('/api/register', async (req, res) => {
-    try {
-        const { username, email, password } = req.body;
-        const hashedPassword = await bcrypt.hash(password, 10);
-        
-        const newUser = new User({ username, email, password: hashedPassword });
-        await newUser.save();
-        
-        res.status(201).json({ success: true, message: 'User registered successfully!' });
-    } catch (err) {
-        res.status(400).json({ success: false, error: 'Registration failed. Username or email may already exist.' });
-    }
-});
-
-// Login Route
-app.post('/api/login', async (req, res) => {
-    try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
-        
-        if (!user) {
-            return res.status(400).json({ success: false, error: 'User not found' });
-        }
-        
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ success: false, error: 'Invalid credentials' });
-        }
-        
-        res.json({ success: true, message: 'Login successful!' });
-    } catch (err) {
-        res.status(500).json({ success: false, error: 'Server error' });
-    }
-});
-
-// Get All Blogs Route
+// API Routes for Blogs
 app.get('/api/blogs', async (req, res) => {
     try {
         const blogs = await Blog.find().sort({ createdAt: -1 });
         res.json(blogs);
     } catch (err) {
-        res.status(500).json({ success: false, error: 'Failed to fetch blogs' });
+        res.status(500).json({ success: false, error: 'Server error' });
     }
 });
 
-// Get a Single Blog by ID
+app.post('/api/blogs', async (req, res) => {
+    try {
+        const { title, content, category, author } = req.body;
+        const newBlog = new Blog({ title, content, category, author });
+        await newBlog.save();
+        res.json({ success: true, blog: newBlog });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+app.put('/api/blogs/:id', async (req, res) => {
+    try {
+        const { title, content, category } = req.body;
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { title, content, category },
+            { new: true }
+        );
+        if (!updatedBlog) {
+            return res.status(404).json({ success: false, error: 'Blog not found' });
+        }
+        res.json({ success: true, blog: updatedBlog });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
+
+app.delete('/api/blogs/:id', async (req, res) => {
+    try {
+        const deletedBlog = await Blog.findByIdAndDelete(req.params.id);
+
+        if (!deletedBlog) {
+            return res.status(404).json({ success: false, error: 'Blog not found' });
+        }
+
+        res.json({ success: true, message: 'Blog deleted successfully!' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: 'Server error' });
+    }
+});
 app.get('/api/blogs/:id', async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id);
@@ -88,20 +93,6 @@ app.get('/api/blogs/:id', async (req, res) => {
         res.status(500).json({ success: false, error: 'Server error' });
     }
 });
-
-// Create a Blog Post Route
-app.post('/api/blogs', async (req, res) => {
-    try {
-        const { title, content, author } = req.body;
-        const newBlog = new Blog({ title, content, author });
-        await newBlog.save();
-        
-        res.status(201).json({ success: true, message: 'Blog created successfully!', blog: newBlog });
-    } catch (err) {
-        res.status(400).json({ success: false, error: 'Failed to create blog post.' });
-    }
-});
-
 app.listen(3000, () => {
     console.log('Server is running on http://localhost:3000');
 });

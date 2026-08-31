@@ -25,6 +25,15 @@
                 <input type="text" id="postTitle" placeholder="Enter title" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <div style="margin-bottom: 15px;">
+                <label>Category:</label><br>
+                <select id="postCategory" style="width: 100%; padding: 8px; margin-top: 5px;">
+                    <option value="General">General</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                    <option value="Education">Education</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 15px;">
                 <label>Content:</label><br>
                 <textarea id="postContent" placeholder="Write your thoughts..." rows="6" style="width: 100%; padding: 8px; margin-top: 5px;" required></textarea>
             </div>
@@ -39,24 +48,24 @@
             e.preventDefault();
 
             const title = document.getElementById('postTitle').value;
+            const category = document.getElementById('postCategory').value;
             const content = document.getElementById('postContent').value;
             const author = "Admin"; // Default or dynamic author fallback
 
             try {
-                // Fixed endpoint to match backend /api/blogs route
                 const response = await fetch('http://localhost:3000/api/blogs', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ title, content, author })
+                    body: JSON.stringify({ title, content, author, category })
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
                     alert('Blog published successfully!');
-                    window.location.href = 'dashboard.html'; // Redirect to dashboard to see it
+                    window.location.href = 'dashboard.html';
                 } else {
                     alert('Failed to publish blog: ' + (data.error || 'Unknown error'));
                 }
