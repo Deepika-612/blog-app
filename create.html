@@ -50,20 +50,27 @@
             const title = document.getElementById('postTitle').value;
             const category = document.getElementById('postCategory').value;
             const content = document.getElementById('postContent').value;
-            const author = "Admin"; // Default or dynamic author fallback
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                alert('You must be logged in to create a blog post.');
+                window.location.href = 'login.html';
+                return;
+            }
 
             try {
                 const response = await fetch('http://localhost:3000/api/blogs', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': token
                     },
-                    body: JSON.stringify({ title, content, author, category })
+                    body: JSON.stringify({ title, content, category })
                 });
 
                 const data = await response.json();
 
-                if (response.ok) {
+                if (response.ok && data.success) {
                     alert('Blog published successfully!');
                     window.location.href = 'dashboard.html';
                 } else {

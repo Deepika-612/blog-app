@@ -21,8 +21,8 @@
         <h2>Welcome Back</h2>
         <form id="loginForm">
             <div style="margin-bottom: 15px;">
-                <label>Username:</label><br>
-                <input type="text" id="loginUsername" placeholder="Enter your username" style="width: 100%; padding: 8px; margin-top: 5px;" required>
+                <label>Email:</label><br>
+                <input type="email" id="loginEmail" placeholder="Enter your email" style="width: 100%; padding: 8px; margin-top: 5px;" required>
             </div>
             <div style="margin-bottom: 15px;">
                 <label>Password:</label><br>
@@ -38,7 +38,7 @@
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const username = document.getElementById('loginUsername').value;
+            const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
             try {
@@ -47,12 +47,13 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ username, password })
+                    body: JSON.stringify({ email, password })
                 });
 
                 const data = await response.json();
                 
                 if (data.success) {
+                    localStorage.setItem('token', data.token);
                     alert('Login successful! Redirecting to dashboard...');
                     window.location.href = 'dashboard.html';
                 } else {
