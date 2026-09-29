@@ -86,7 +86,7 @@ async function loadProfile() {
     try {
 
         const response = await fetch(
-            '0/api/profile',
+            '/api/profile',
             {
                 headers: {
                     'Authorization': token
@@ -134,7 +134,7 @@ async function fetchPosts() {
     try {
 
         const response = await fetch(
-            '0/api/my-blogs',
+            '/api/my-blogs',
             {
                 headers: {
                     'Authorization': token
